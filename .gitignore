@@ -3,7 +3,7 @@
 .venv/
 .vscode/
 .web
-TextSuggestion/emails.csv
+emails.csv
 __pycache__/
 assets/external/
 venv/
