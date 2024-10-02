@@ -1,0 +1,9 @@
+*.db
+*.py[cod]
+.venv/
+.vscode/
+.web
+TextSuggestion/emails.csv
+__pycache__/
+assets/external/
+venv/
