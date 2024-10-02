@@ -15,34 +15,73 @@ class State(rx.State):
     """The app state."""
 
     input_text: str = ""
+    input_text_copy: str
     completed_word_1: str
     completed_word_2: str
     completed_word_3: str
     suggested_word: str
 
     def handle_change(self, value: str):
-        self.input_text = value.split(' ')[-1]
+        self.input_text_copy = value.split(' ')
         self.suggest()
 
     def suggest(self):
-        self.final_completed_word = self.input_text
+        self.final_completed_word = self.input_text_copy
 
-        words, probs = word_completor.get_words_and_probs(self.input_text)
+        words = text_suggestion.suggest_text(self.input_text_copy)[0]
         
-        if len(probs) > 0:
-            self.final_completed_word = words[np.argmax(np.array(probs))]
+        if len(words) > 0:
+            self.completed_word_1 = words[0]
+        else:
+            self.completed_word_1 = ""
+
+        if len(words) > 1:
+            self.completed_word_2 = words[1]
+        else:
+            self.completed_word_2 = ""
+
+        if len(words) > 2:
+            self.completed_word_3 = words[2]
+        else:
+            self.completed_word_3 = ""
+
+        if len(words) > 3:
+            self.suggested_word = ' '.join(words[3:])
+        else:
+            self.suggested_word = ""
 
 
-def suggestion():
+def block(text):
     return rx.card(
         rx.flex(
             rx.flex(
-                rx.text(State.final_completed_word, size="2", weight="bold"),
+                rx.flex(
+                    rx.text(text, size="2", weight="bold"),
+                    direction="column",
+                    spacing="1",
+                ),
                 direction="row",
                 align_items="left",
                 spacing="1",
             ),
             justify="between",
+        )
+    )
+
+def suggestion():
+    return rx.card(
+        rx.flex(
+            rx.flex(
+                block(State.completed_word_1),
+                block(State.completed_word_2),
+                block(State.completed_word_3),
+                block(State.suggested_word),
+                #rx.text(State.suggested_word, size="2", weight="bold"),
+                direction="column",
+                align_items="left",
+                spacing="4",
+            ),
+            #justify="between",
         )
     )
 
@@ -57,7 +96,7 @@ def index() -> rx.Component:
             rx.flex(
                 suggestion(),
                 direction="column",
-                spacing="1",
+                spacing="3",
             ),
             direction="column",
             spacing="3",

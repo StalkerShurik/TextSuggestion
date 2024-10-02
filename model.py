@@ -101,11 +101,6 @@ class NGramLanguageModel:
                 self.root.add_n_gramm(text[i:i+n+1], 0)
                 
     def get_next_words_and_probs(self, prefix: list) -> (List[str], List[float]):
-        """
-        Возвращает список слов, которые могут идти после prefix,
-        а так же список вероятностей этих слов
-        """
-
         next_words, probs = [], []
         
         cur_node = self.root
@@ -140,17 +135,6 @@ class TextSuggestion:
         self.n_gram_model = n_gram_model
 
     def suggest_text(self, text: list, n_words=3, n_texts=1) -> list[list[str]]:
-        """
-        Возвращает возможные варианты продолжения текста (по умолчанию только один)
-        
-        text: строка или список слов – написанный пользователем текст
-        n_words: число слов, кNоторые дописывает n-граммная модель
-        n_texts: число возвращаемых продолжений (пока что только одно)
-        
-        return: list[list[srt]] – список из n_texts списков слов, по 1 + n_words слов в каждом
-        Первое слово – это то, которое WordCompletor дополнил до целого.
-        """
-
         suggestions = []
 
         words, probs = self.word_completor.get_words_and_probs(text[-1])
@@ -166,8 +150,12 @@ class TextSuggestion:
             fixed_prefix.append(completed_word)
 
         else:
-            suggestions.append("DONT_KNOW_TOKEN")
+            suggestions.append("")
             fixed_prefix = text
+
+        if len(words) > 3:
+            suggestions.append(words[1])
+            suggestions.append(words[2])
 
         for i in range(n_words):
             words, probs = self.n_gram_model.get_next_words_and_probs(fixed_prefix[-self.n_gram_model.n:])
